@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: character_body
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: character
+    m_Weight: 0
+  - m_Path: character armature
+    m_Weight: 0
+  - m_Path: character armature/root
+    m_Weight: 1
+  - m_Path: character armature/root/arm.l
+    m_Weight: 0
+  - m_Path: character armature/root/arm.r
+    m_Weight: 0
+  - m_Path: character armature/root/head
+    m_Weight: 1
+  - m_Path: character armature/root/leg.l
+    m_Weight: 0
+  - m_Path: character armature/root/leg.r
+    m_Weight: 0

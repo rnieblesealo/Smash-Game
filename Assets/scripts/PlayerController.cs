@@ -22,16 +22,21 @@ public class PlayerController : MonoBehaviour
     public float gravity;
     public float smoothTime;
 
+    [Header("References")]
+    public Transform model;
+
     public LayerMask whatIsGround;
 
-    [HideInInspector] public float buttonX;
+    [HideInInspector] public float buttonX = 0;
+    [HideInInspector] public float lastButtonX = 0;
 
+    public bool isHoldingGun = true;
     public bool isGrounded = true;
 
     private float yVelocity;
     private float xVelocity;
-    private float lastButtonX = 0;
     private float jumpMultiplier = 0;
+    private bool hasJumped = false;
 
     private bool maxedJumpTimer = false;
 
@@ -53,8 +58,11 @@ public class PlayerController : MonoBehaviour
             lastButtonX = buttonX;
 
         // Handle player rotation
-        Vector3 rotation = Vector3.up * (lastButtonX < 0 ? 180 : 0);
-        gameObject.transform.rotation = Quaternion.Lerp(gameObject.transform.rotation, Quaternion.Euler(rotation), smoothTime * Time.deltaTime);
+        if (model != null)
+        {
+            Vector3 rotation = Vector3.up * (lastButtonX < 0 ? 180 : 0);
+            model.transform.localRotation = Quaternion.Lerp(model.transform.localRotation, Quaternion.Euler(rotation), smoothTime * Time.deltaTime);
+        }
     }
 
     private void Fall()
@@ -70,6 +78,9 @@ public class PlayerController : MonoBehaviour
 
                 jumpMultiplier = 0;
                 maxedJumpTimer = false;
+                hasJumped = false;
+
+                anim.PlaySound(1); // Play landing sound
             }
         }
 
@@ -99,10 +110,14 @@ public class PlayerController : MonoBehaviour
 
         else if (Input.GetKeyUp(jump)  || maxedJumpTimer)
         {
-            if (isGrounded)
+            if (isGrounded && !hasJumped)
             {
                 yVelocity = jumpDistribution * jumpHeight * jumpMultiplier;
                 xVelocity = (1 - jumpDistribution) * jumpMultiplier * jumpHeight;
+
+                anim.PlaySound(0); // Play jump sound
+
+                hasJumped = true; // Ensures everything within this if statement executes only once per jump
             }
         }
     }

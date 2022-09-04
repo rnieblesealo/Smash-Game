@@ -10,7 +10,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]private Transform groundChecker;
 
     [Header("Keybinds")]
-    [SerializeField] private KeyCode jump;
+    public KeyCode jump;
+    public KeyCode shoot;
+    public KeyCode reload;
 
     [Header("Settings")]
     public float maxJumpMultiplier = 1;
@@ -85,10 +87,10 @@ public class PlayerController : MonoBehaviour
         }
 
         else
-            yVelocity += gravity;
+            yVelocity += gravity * Time.deltaTime;
 
-        controller.Move(Vector3.up * yVelocity * Time.deltaTime); // Apply jump force
-        controller.Move(Vector3.forward * xVelocity * buttonX * Time.deltaTime); // Apply additional horizontal force
+        controller.Move(Time.deltaTime * yVelocity * Vector3.up); // Apply jump force
+        controller.Move(Time.deltaTime * buttonX * xVelocity * Vector3.forward); // Apply additional horizontal force
     }
 
     private void Jump()

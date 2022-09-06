@@ -43,7 +43,7 @@ public class Bullet : MonoBehaviour
             {
                 if (nearbyColliders[i].transform != caster)
                 {
-                    nearbyColliders[i].GetComponent<PlayerController>().currentHealth -= damage;
+                    nearbyColliders[i].GetComponent<PlayerController>().Damage(damage);
                     Destroy(gameObject);
                 }
             }

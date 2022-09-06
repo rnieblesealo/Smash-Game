@@ -22,6 +22,6 @@ public class HealthBar : MonoBehaviour
 
         transform.position = Camera.main.WorldToScreenPoint(trackedPlayer.UIAnchor.position);
 
-        fill.fillAmount = Mathf.Lerp(fill.fillAmount, trackedPlayer.currentHealth / trackedPlayer.maxHealth, smoothTime * Time.deltaTime);
+        fill.fillAmount = Mathf.Lerp(fill.fillAmount, trackedPlayer.currentHealth / trackedPlayer.settings.maxHealth, smoothTime * Time.deltaTime);
     }
 }

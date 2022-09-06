@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5f6cb770fd894d698cadb877d03bf59, type: 3}
+  m_Name: player settings
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  movementSpeed: 7.5
+  jumpHeight: 30
+  gravity: -40
+  jumpDistribution: 0.85
+  maxJumpMultiplier: 1
+  jumpHoldIncrement: 0.1
+  itemScanRadius: 1.25
+  groundScanRadius: 0.15
+  throwTorque: 2500
+  throwForce: 17.5
+  upThrowDistribution: 0.25
+  whatIsGround:
+    serializedVersion: 2
+    m_Bits: 8
+  whatIsPickup:
+    serializedVersion: 2
+    m_Bits: 512
+  smoothTime: 20

@@ -8,69 +8,45 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public AnimationController anim;
     [HideInInspector] public Gun gun;
 
-    [SerializeField] private Transform groundChecker;
+    public PlayerKeybinds keybinds;
+    public PlayerSettings settings;
 
-    public Transform UIAnchor;
-
-    [Header("Keybinds")]
-    public string buttonAxis;
-    public KeyCode jump;
-    public KeyCode shoot;
-    public KeyCode reload;
-
-    [Header("Settings")]
-    public float maxHealth;
-    public float throwTorque;
-    public float throwForce;
-    public float upThrowDistribution; // The higher this value, the more upward the object throw will go as opposed to sideways
-    public float maxJumpMultiplier = 1;
-    public float jumpDistribution = 0.5f; // Proportion of jump allocated to upward movement; rest is for move direction boost
-    public float jumpHoldIncrement = 0.05f;
-    public float groundScanRadius;
-    public float itemScanRadius;
-    public float movementSpeed;
-    public float jumpHeight;
-    public float gravity;
-    public float smoothTime;
-
-    [Header("References")]
+    [Header("Required Object References")]
     public Transform playerModel;
     public Transform heldPickupTransform;
-
-    public LayerMask whatIsGround;
-    public LayerMask whatIsPickup;
+    public Transform groundChecker;
+    public Transform UIAnchor;
 
     [HideInInspector] public float buttonX = 0;
     [HideInInspector] public float lastButtonX = 0;
+    [HideInInspector] public float currentHealth = 0;
 
-    public float currentHealth;
+    [HideInInspector] public bool isHoldingGun = true;
+    [HideInInspector] public bool isHoldingPickup = false; // TODO Redundant with heldPickup == null
+    [HideInInspector] public bool isGrounded = true;
 
-    public bool isHoldingGun = true;
-    public bool isHoldingPickup = false; // TODO Redundant with heldPickup == null
-    public bool isGrounded = true;
+    private const int groundLayer = 3; // TODO Relocate to static type
+
+    // Instance-Based Members
 
     private float yVelocity;
     private float xVelocity;
-    private float jumpMultiplier = 0;
+    private float currentJumpMultiplier = 0;
 
     private bool hasJumped = false;
     private bool maxedJumpTimer = false;
+    private bool ignoringGroundCollision = false;
 
     private GameObject heldPickup;
 
-    private void Awake()
-    {
-        controller = GetComponent<CharacterController>();
-        anim = GetComponentInChildren<AnimationController>();
-        gun = GetComponentInChildren<Gun>();
-    }
+    // Type Functions
 
     private void Move()
     {
         // Handle sidescroll movement
-        buttonX = Input.GetAxisRaw(buttonAxis);
+        buttonX = Input.GetAxisRaw(keybinds.buttonAxis);
 
-        controller.Move(buttonX * movementSpeed * Time.deltaTime * Vector3.forward);
+        controller.Move(buttonX * settings.movementSpeed * Time.deltaTime * Vector3.forward);
 
         // Store last pressed directional button that != 0
         if (lastButtonX != buttonX && buttonX != 0)
@@ -80,13 +56,13 @@ public class PlayerController : MonoBehaviour
         if (playerModel != null)
         {
             Vector3 rotation = Vector3.up * (lastButtonX < 0 ? 180 : 0);
-            playerModel.transform.localRotation = Quaternion.Lerp(playerModel.transform.localRotation, Quaternion.Euler(rotation), smoothTime * Time.deltaTime);
+            playerModel.transform.localRotation = Quaternion.Lerp(playerModel.transform.localRotation, Quaternion.Euler(rotation), settings.smoothTime * Time.deltaTime);
         }
     }
 
     private void Fall()
     {
-        isGrounded = Physics.CheckSphere(groundChecker.position, groundScanRadius, whatIsGround);
+        isGrounded = Physics.CheckSphere(groundChecker.position, settings.groundScanRadius, settings.whatIsGround);
 
         if (isGrounded)
         {
@@ -95,7 +71,7 @@ public class PlayerController : MonoBehaviour
                 yVelocity = 0;
                 xVelocity = 0;
 
-                jumpMultiplier = 0;
+                currentJumpMultiplier = 0;
                 maxedJumpTimer = false;
                 hasJumped = false;
 
@@ -104,7 +80,7 @@ public class PlayerController : MonoBehaviour
         }
 
         else
-            yVelocity += gravity * Time.deltaTime;
+            yVelocity += settings.gravity * Time.deltaTime;
 
         controller.Move(Time.deltaTime * yVelocity * Vector3.up); // Apply jump force
         controller.Move(Time.deltaTime * buttonX * xVelocity * Vector3.forward); // Apply additional horizontal force
@@ -119,20 +95,20 @@ public class PlayerController : MonoBehaviour
          * Reset everything once we hit ground again
          */
 
-        if (Input.GetKey(jump) && isGrounded && !maxedJumpTimer)
+        if (Input.GetKey(keybinds.jump) && isGrounded && !maxedJumpTimer)
         {
-            jumpMultiplier += jumpHoldIncrement;
+            currentJumpMultiplier += settings.jumpHoldIncrement;
 
-            if (jumpMultiplier >= maxJumpMultiplier)
+            if (currentJumpMultiplier >= settings.maxJumpMultiplier)
                 maxedJumpTimer = true;
         }
 
-        else if (Input.GetKeyUp(jump)  || maxedJumpTimer)
+        else if (Input.GetKeyUp(keybinds.jump)  || maxedJumpTimer)
         {
             if (isGrounded && !hasJumped)
             {
-                yVelocity = jumpDistribution * jumpHeight * jumpMultiplier;
-                xVelocity = (1 - jumpDistribution) * jumpMultiplier * jumpHeight;
+                yVelocity = settings.jumpDistribution * settings.jumpHeight * currentJumpMultiplier;
+                xVelocity = (1 - settings.jumpDistribution) * currentJumpMultiplier * settings.jumpHeight;
 
                 anim.PlaySound(0); // Play jump sound
 
@@ -143,12 +119,12 @@ public class PlayerController : MonoBehaviour
 
     private bool IsTouchingPickup()
     {
-        return Physics.CheckSphere(transform.position, itemScanRadius, whatIsPickup);
+        return Physics.CheckSphere(transform.position, settings.itemScanRadius, settings.whatIsPickup);
     }
 
     private void EquipPickup()
     {
-        Collider[] nearbyPickups = Physics.OverlapSphere(transform.position, itemScanRadius, whatIsPickup);
+        Collider[] nearbyPickups = Physics.OverlapSphere(transform.position, settings.itemScanRadius, settings.whatIsPickup);
         for (int i = 0; i < nearbyPickups.Length; ++i)
             if (nearbyPickups[i].GetComponent<Pickup>().canBePickedUp)
                 heldPickup = nearbyPickups[i].gameObject;
@@ -164,17 +140,22 @@ public class PlayerController : MonoBehaviour
         heldPickup.GetComponent<Pickup>().OnPickedUp();
 
         isHoldingPickup = true;
+        heldPickup.GetComponent<Pickup>().lastOwner = this.transform; // The last of
     }
 
     private void ThrowPickup()
     {
+        /* On throw:
+         * Use similar collision system as bullets
+         */
+
         heldPickup.transform.SetParent(null);
         heldPickup.GetComponent<Pickup>().OnDropped();
 
         Rigidbody pickupRigidbody = heldPickup.GetComponent<Rigidbody>();
 
-        Vector3 force = pickupRigidbody.mass * throwForce * (playerModel.transform.up * upThrowDistribution + playerModel.transform.forward * (1 - upThrowDistribution));
-        Vector3 angularForce = throwTorque * (playerModel.transform.up + playerModel.transform.forward); // Results in a vector diagonal to the forward direction of the throw NOTE Only works sometimes?
+        Vector3 force = pickupRigidbody.mass * settings.throwForce * (playerModel.transform.up * settings.upThrowDistribution + playerModel.transform.forward * (1 - settings.upThrowDistribution));
+        Vector3 angularForce = settings.throwTorque * playerModel.transform.forward; // Results in a vector diagonal to the forward direction of the throw NOTE Only works sometimes?
 
         pickupRigidbody.AddForce(force, ForceMode.Impulse);
         pickupRigidbody.AddTorque(angularForce, ForceMode.Impulse);
@@ -205,9 +186,26 @@ public class PlayerController : MonoBehaviour
         isHoldingGun = false;
     }
 
+    public void Damage(int amount)
+    {
+        currentHealth -= amount;
+
+        anim.bloodParticles.Play();
+        anim.PlaySound(3); // 3 is the hitmarker sound
+    }
+
+    // MonoBehavior Functions
+
+    private void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+        anim = GetComponentInChildren<AnimationController>();
+        gun = GetComponentInChildren<Gun>();
+    }
+
     private void Start()
     {
-        currentHealth = maxHealth;
+        currentHealth = settings.maxHealth;
 
         DrawGun();          
     }
@@ -221,18 +219,35 @@ public class PlayerController : MonoBehaviour
         if (IsTouchingPickup() && !isHoldingPickup)
             EquipPickup();
 
-        if (Input.GetKeyDown(shoot) && isHoldingPickup)
+        if (Input.GetKeyDown(keybinds.shoot) && isHoldingPickup)
             ThrowPickup();
 
         // Handle gun
         if (gun)
         {
-            if (Input.GetKey(shoot))
+            if (Input.GetKey(keybinds.shoot))
                 gun.Shoot();
-            else if (Input.GetKeyDown(reload))
+            else if (Input.GetKeyDown(keybinds.reload))
                 gun.Reload();
         }
         else
             isHoldingGun = false;
+
+        // Handle platform phasing
+        if (yVelocity > 0 && !ignoringGroundCollision)
+        {
+            for (int i = 0; i < LevelController.levelObjects.Count; ++i)
+                Physics.IgnoreCollision(controller, LevelController.levelObjects[i], true);
+
+            ignoringGroundCollision = true;
+        }
+
+        else if (yVelocity <= 0 && ignoringGroundCollision)
+        {
+            for (int i = 0; i < LevelController.levelObjects.Count; ++i)
+                Physics.IgnoreCollision(controller, LevelController.levelObjects[i], false);
+
+            ignoringGroundCollision = false;
+        }
     }
 }

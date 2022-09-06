@@ -7,7 +7,7 @@ public class CameraController : MonoBehaviour
 {
     private Camera cam;
 
-    public List<Transform> targets;
+    public List<Transform> targets = new List<Transform>();
     public Vector3 offset;
 
     [SerializeField] private float smoothTime;

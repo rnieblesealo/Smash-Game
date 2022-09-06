@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class AnimationController : MonoBehaviour
 {
-    private Animator animator;
-    private AudioSource audioSource;
-    private PlayerController playerController;
+    [HideInInspector] public Animator animator;
+    [HideInInspector] public AudioSource audioSource;
+    [HideInInspector] public PlayerController playerController;
 
     [Header("Animator Parameters")]
     [SerializeField] private string idle = "Idle";
@@ -21,7 +21,8 @@ public class AnimationController : MonoBehaviour
     [Header("Other")]
     [SerializeField] private Transform headObject;
     [SerializeField] private Transform headTarget;
-    [SerializeField] private Transform walkParticles;
+    public ParticleSystem walkParticles;
+    public ParticleSystem bloodParticles;
 
     private string currentBodyAnimation;
     private string currentArmsAnimation;
@@ -159,9 +160,12 @@ public class AnimationController : MonoBehaviour
 
         // Handle walk particles
         Vector3 walkParticleRotation = Vector3.up * (playerController.lastButtonX < 0 ? 0 : 180);
-        ParticleSystem.EmissionModule walkParticlesEmission = walkParticles.GetComponent<ParticleSystem>().emission;
+        ParticleSystem.EmissionModule walkParticlesEmission = walkParticles.emission;
 
-        walkParticles.localRotation = Quaternion.Euler(walkParticleRotation);
+        walkParticles.transform.localRotation = Quaternion.Euler(walkParticleRotation);
         walkParticlesEmission.enabled = playerController.buttonX != 0 && playerController.isGrounded;
+
+        // Handle blood particles
+
     }
 }

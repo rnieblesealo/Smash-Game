@@ -1,17 +1,9 @@
 fileFormatVersion: 2
-guid: 93d00a10482bc4a999fb08f2857bbaaf
+guid: 934a44fc2690647a6921f76c31dd9795
 ModelImporter:
   serializedVersion: 21300
-  internalIDToNameTable:
-  - first:
-      74: -623603649343465320
-    second: Scene
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: ppsh material
-    second: {fileID: 2100000, guid: 42684c4bb79674ce1a913bbed3dde023, type: 2}
+  internalIDToNameTable: []
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

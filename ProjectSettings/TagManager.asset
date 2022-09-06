@@ -11,10 +11,10 @@ TagManager:
   - Ground
   - Water
   - UI
-  - Self
+  - Player
   - Projectile
   - Post
-  - 
+  - Pickup
   - 
   - 
   - 

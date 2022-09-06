@@ -5,37 +5,46 @@ using UnityEngine;
 public class Gun : MonoBehaviour
 {
     private AudioSource audioSource;
-    private PlayerController playerController;
+    private ParticleSystem muzzleFlash;
 
     [SerializeField] private Transform shootPoint;
+    [SerializeField] private Transform heldTransform;
+    [SerializeField] private Transform holsteredTransform;
     [SerializeField] private GameObject bulletPrefab;
 
     [Header("Sounds")]
     [SerializeField] private AudioClip shoot;
-
+    [SerializeField] private AudioClip draw;
+    [SerializeField] private AudioClip holster;
 
     [Header("Settings")]
     [SerializeField] private int maxReserve;
-    [SerializeField] private int currentReserve;
     [SerializeField] private int maxAmmo;
-    [SerializeField] private int currentAmmo;
+    [SerializeField] private float fireRate;
+    [SerializeField] private float bloom;
+
+    private int currentReserve;
+    private int currentAmmo;
 
     private const float maxShootDistance = 500;
     private const float missTargetDistance = maxShootDistance / 2;
 
+    [HideInInspector] public float nextFireTime = 0f;
+    [HideInInspector] public float reloadStopTime = 0f;
+
     public LayerMask notShootable;
 
-    private void Shoot()
+    public void Shoot()
     {
-        if (currentAmmo == 0)
+        if (currentAmmo == 0 || Time.time < nextFireTime)
             return;
 
         currentAmmo--;
 
-        Ray shot = new Ray(shootPoint.position, shootPoint.forward);
+        Ray shot = new Ray(shootPoint.position, shootPoint.forward + shootPoint.up * Random.Range(-bloom, bloom));
         Vector3 target;
 
-        if (Physics.Raycast(shootPoint.position, shootPoint.forward, out RaycastHit hit, maxShootDistance, notShootable))
+        if (Physics.Raycast(shot, out RaycastHit hit, maxShootDistance, notShootable))
             target = hit.point;
         else
             target = shot.GetPoint(missTargetDistance);
@@ -45,10 +54,13 @@ public class Gun : MonoBehaviour
         bullet.origin = shootPoint.position;
         bullet.target = target;
 
+        nextFireTime = Time.time + 1f / fireRate;
+
         audioSource.PlayOneShot(shoot);
+        muzzleFlash.Play();
     }
 
-    private void Reload()
+    public void Reload()
     {
         if (currentAmmo == maxAmmo)
             return;
@@ -60,21 +72,33 @@ public class Gun : MonoBehaviour
         currentAmmo += reloadedAmmo;
     }
 
-    private void Start()
+    public void Holster()
     {
-        audioSource = GetComponent<AudioSource>();
-        playerController = GetComponentInParent<PlayerController>();
+        gameObject.transform.SetParent(holsteredTransform);
+        gameObject.transform.localPosition = Vector3.zero;
+        gameObject.transform.localRotation = Quaternion.identity;
 
-        currentAmmo = maxAmmo;
-        currentReserve = maxReserve;
+        audioSource.PlayOneShot(holster);
     }
 
-    private void Update()
+    public void Draw()
     {
-        if (Input.GetKeyDown(playerController.shoot))
-            Shoot();
+        gameObject.transform.SetParent(heldTransform);
+        gameObject.transform.localPosition = Vector3.zero;
+        gameObject.transform.localRotation = Quaternion.identity;
 
-        else if (Input.GetKeyDown(playerController.reload))
-            Reload();
+        audioSource.PlayOneShot(draw);
+    }
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        muzzleFlash = GetComponentInChildren<ParticleSystem>();
+    }
+
+    private void Start()
+    {
+        currentAmmo = maxAmmo;
+        currentReserve = maxReserve;
     }
 }

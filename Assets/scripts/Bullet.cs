@@ -19,6 +19,6 @@ public class Bullet : MonoBehaviour
         if (lifetime >= killTime)
             Destroy(gameObject);
 
-        rb.velocity = speed * Time.deltaTime * (target - origin); // We must update this every frame for correct framerate independence, send values from gun
+        rb.velocity = speed * Time.deltaTime * (target - origin).normalized; // We must update this every frame for correct framerate independence, send values from gun
     }
 }

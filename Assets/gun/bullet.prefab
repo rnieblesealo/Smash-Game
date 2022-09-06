@@ -181,6 +181,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 7815811421206933973}
   killTime: 0.75
-  speed: 60
+  speed: 15000
   origin: {x: 0, y: 0, z: 0}
   target: {x: 0, y: 0, z: 0}

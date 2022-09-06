@@ -1,17 +1,14 @@
 fileFormatVersion: 2
-guid: 93d00a10482bc4a999fb08f2857bbaaf
+guid: ddc3f9298a6804cb3a062b5f09999e2c
 ModelImporter:
   serializedVersion: 21300
-  internalIDToNameTable:
-  - first:
-      74: -623603649343465320
-    second: Scene
+  internalIDToNameTable: []
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: ppsh material
-    second: {fileID: 2100000, guid: 42684c4bb79674ce1a913bbed3dde023, type: 2}
+      name: tnt material
+    second: {fileID: 2100000, guid: 0d7a61a0a6a1e4b41b86ef7a480e58af, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

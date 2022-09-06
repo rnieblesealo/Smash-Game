@@ -51,8 +51,7 @@ public class Gun : MonoBehaviour
 
         Bullet bullet = Instantiate(bulletPrefab, shootPoint.position, Quaternion.identity).GetComponent<Bullet>();
 
-        bullet.origin = shootPoint.position;
-        bullet.target = target;
+        bullet.Configure(shootPoint.position, target, (GetComponentInParent<PlayerController>() ? GetComponentInParent<PlayerController>().transform : transform));
 
         nextFireTime = Time.time + 1f / fireRate;
 

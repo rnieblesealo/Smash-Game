@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private Transform groundChecker;
 
+    public Transform UIAnchor;
+
     [Header("Keybinds")]
     public string buttonAxis;
     public KeyCode jump;
@@ -17,6 +19,7 @@ public class PlayerController : MonoBehaviour
     public KeyCode reload;
 
     [Header("Settings")]
+    public float maxHealth;
     public float throwTorque;
     public float throwForce;
     public float upThrowDistribution; // The higher this value, the more upward the object throw will go as opposed to sideways
@@ -39,6 +42,8 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public float buttonX = 0;
     [HideInInspector] public float lastButtonX = 0;
+
+    public float currentHealth;
 
     public bool isHoldingGun = true;
     public bool isHoldingPickup = false; // TODO Redundant with heldPickup == null
@@ -202,7 +207,9 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        DrawGun();            
+        currentHealth = maxHealth;
+
+        DrawGun();          
     }
 
     private void Update()

@@ -180,7 +180,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 7815811421206933973}
+  whatIsHittable:
+    serializedVersion: 2
+    m_Bits: 64
+  hitRadius: 1
   killTime: 0.75
   speed: 15000
+  damage: 10
+  caster: {fileID: 0}
   origin: {x: 0, y: 0, z: 0}
   target: {x: 0, y: 0, z: 0}

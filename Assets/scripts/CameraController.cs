@@ -28,6 +28,9 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (targets.Count == 0)
+            return;
+
         Pan();
         Zoom();
     }
@@ -69,10 +72,7 @@ public class CameraController : MonoBehaviour
     Vector3 GetCenterPoint()
     {
         // Place in bounds and get center point
-        if (targets.Count == 0)
-            return Vector3.zero;
-
-        else if (targets.Count == 1)
+        if (targets.Count == 1)
             return targets[0].position;
 
         Bounds bounds = new Bounds(targets[0].position, Vector3.zero);

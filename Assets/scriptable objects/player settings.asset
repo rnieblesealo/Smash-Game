@@ -15,6 +15,7 @@ MonoBehaviour:
   maxHealth: 100
   movementSpeed: 7.5
   jumpHeight: 30
+  respawnDelay: 3
   gravity: -40
   jumpDistribution: 0.85
   maxJumpMultiplier: 1

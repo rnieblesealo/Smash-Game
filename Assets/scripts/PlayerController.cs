@@ -8,6 +8,9 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public AnimationController anim;
     [HideInInspector] public Gun gun;
 
+    private Renderer[] meshes; // Cache of all renderers pertaining to this player
+    private BoxCollider hitbox; // The hitbox for gameplay purposes, NOT movement purposes; this would be the CharacterController
+
     public PlayerKeybinds keybinds;
     public PlayerSettings settings;
 
@@ -24,6 +27,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public bool isHoldingGun = true;
     [HideInInspector] public bool isHoldingPickup = false; // TODO Redundant with heldPickup == null
     [HideInInspector] public bool isGrounded = true;
+    [HideInInspector] public bool isDead;
 
     private const int groundLayer = 3; // TODO Relocate to static type
 
@@ -32,6 +36,7 @@ public class PlayerController : MonoBehaviour
     private float yVelocity;
     private float xVelocity;
     private float currentJumpMultiplier = 0;
+    private float timeToRespawn = 0;
 
     private bool hasJumped = false;
     private bool maxedJumpTimer = false;
@@ -186,11 +191,104 @@ public class PlayerController : MonoBehaviour
         isHoldingGun = false;
     }
 
+    private void OnDeath()
+    {
+        /* On death:
+         * 
+         * Hide renderers under this player, NOTE any renderers added after game start will not be disabled
+         * Disallow any input (stop updating player)
+         * Drop any pickups
+         * Determine at what time we will respawn
+         * Disable hitbox AND character controller hitbox
+         * Stop any animation (disable animator altogether)
+         * Make health bar transparent to reflect dead player, handle this from healthbar script itself
+         * Disable walk particles, this is handled from animation controller
+         * Play effects!
+         */
+
+        // Disallow updates to this player, including input
+        isDead = true;
+
+        // Play effects!
+        anim.deathParticles.Play();
+        anim.PlaySound(4);
+
+        // Disable non-particle renderers
+        for (int i = 0; i < meshes.Length; ++i)
+            if (!meshes[i].GetComponent<ParticleSystem>())
+                meshes[i].enabled = false;
+
+        // Disable hitboxes
+        hitbox.enabled = false;
+        controller.enabled = false;
+
+        // Disable animator
+        anim.animator.enabled = false;
+
+        // Drop all pickups if any are held
+        if (isHoldingPickup)
+            ThrowPickup();
+
+        // Determine respawn time
+        timeToRespawn = Time.time + settings.respawnDelay;
+    }
+
+    private void OnRespawn()
+    {
+        /*On respawn:
+         *
+         * Reset health
+         * Reset animation
+         * Reset gun(refill, reset state)
+         * Reset player controller(clear all state)
+         * Reenable hitboxes
+         * Reenable renderers
+         * Reenable animator
+         * Play effects!
+         * Make health bar full opacity again, handle this from healthbar script itself
+         * Enable walk particles, this is handled from animator script itself
+         */
+
+        // Restore health
+        currentHealth = settings.maxHealth;
+
+        // Restore updates
+        isDead = false;
+
+        // Reset state bools & values
+        yVelocity = 0;
+        xVelocity = 0;
+        currentJumpMultiplier = 0;
+
+        hasJumped = false;
+        maxedJumpTimer = false;
+        ignoringGroundCollision = false;
+
+        // Re-enable non-particle renderers
+        for (int i = 0; i < meshes.Length; ++i)
+            meshes[i].enabled = true;
+
+        // Re-enable hitboxes
+        hitbox.enabled = true;
+        controller.enabled = true;
+
+        // Enable animator
+        anim.animator.enabled = true;
+
+        // Reset gun
+        DrawGun();
+        // TODO IMPLEMENT FUNCTION FOR GUN ITSELF
+    }
+
     public void Damage(int amount)
     {
+        // One cannot damage a dead player
+        if (isDead)
+            return;
+
         currentHealth -= amount;
 
-        anim.bloodParticles.Play();
+        anim.hitParticles.Play();
         anim.PlaySound(3); // 3 is the hitmarker sound
     }
 
@@ -201,6 +299,8 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         anim = GetComponentInChildren<AnimationController>();
         gun = GetComponentInChildren<Gun>();
+        meshes = GetComponentsInChildren<Renderer>();
+        hitbox = GetComponent<BoxCollider>();
     }
 
     private void Start()
@@ -212,6 +312,14 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // Player will only respond to respawn update if dead
+        if (isDead)
+        {
+            if (Time.time >= timeToRespawn)
+                OnRespawn();
+            return;
+        }
+
         Move();
         Fall();
         Jump();
@@ -219,7 +327,7 @@ public class PlayerController : MonoBehaviour
         if (IsTouchingPickup() && !isHoldingPickup)
             EquipPickup();
 
-        if (Input.GetKeyDown(keybinds.shoot) && isHoldingPickup)
+        if (Input.GetKey(keybinds.shoot) && isHoldingPickup)
             ThrowPickup();
 
         // Handle gun
@@ -228,7 +336,7 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(keybinds.shoot))
                 gun.Shoot();
             else if (Input.GetKeyDown(keybinds.reload))
-                gun.Reload();
+                gun.BeginReload();
         }
         else
             isHoldingGun = false;
@@ -248,6 +356,13 @@ public class PlayerController : MonoBehaviour
                 Physics.IgnoreCollision(controller, LevelController.levelObjects[i], false);
 
             ignoringGroundCollision = false;
+        }
+
+        // Handle death, clamp current health to 0 as its min value
+        if (currentHealth <= 0 && !isDead)
+        {
+            currentHealth = 0;
+            OnDeath();
         }
     }
 }

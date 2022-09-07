@@ -206,6 +206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fill: {fileID: 5643358783741182985}
   smoothTime: 7.5
+  alphaCrossfadeTime: 0.25
 --- !u!1 &5643358783741182991
 GameObject:
   m_ObjectHideFlags: 0

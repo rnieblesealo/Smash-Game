@@ -22,15 +22,18 @@ public class Gun : MonoBehaviour
     [SerializeField] private int maxAmmo;
     [SerializeField] private float fireRate;
     [SerializeField] private float bloom;
+    [SerializeField] private float reloadDuration;
 
     private int currentReserve;
     private int currentAmmo;
+
+    private bool hasReloaded = false;
 
     private const float maxShootDistance = 500;
     private const float missTargetDistance = maxShootDistance / 2;
 
     [HideInInspector] public float nextFireTime = 0f;
-    [HideInInspector] public float reloadStopTime = 0f;
+    [HideInInspector] public float nextReloadTime = 0f;
 
     public LayerMask notShootable;
 
@@ -59,7 +62,15 @@ public class Gun : MonoBehaviour
         muzzleFlash.Play();
     }
 
-    public void Reload()
+    public void BeginReload()
+    {
+        nextReloadTime = Time.time + reloadDuration;
+        hasReloaded = false;
+
+        print("Beginning Reload!");
+    }
+
+    private void Reload()
     {
         if (currentAmmo == maxAmmo)
             return;
@@ -69,6 +80,10 @@ public class Gun : MonoBehaviour
 
         currentReserve -= reloadedAmmo;
         currentAmmo += reloadedAmmo;
+
+        hasReloaded = true;
+
+        print("Reloaded!");
     }
 
     public void Holster()
@@ -99,5 +114,13 @@ public class Gun : MonoBehaviour
     {
         currentAmmo = maxAmmo;
         currentReserve = maxReserve;
+    }
+
+    private void Update()
+    {
+        if (Time.time > nextReloadTime && nextReloadTime != 0 && !hasReloaded)
+        {
+            Reload();
+        }
     }
 }

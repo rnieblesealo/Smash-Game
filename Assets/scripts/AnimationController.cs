@@ -18,11 +18,10 @@ public class AnimationController : MonoBehaviour
     [Header("Sounds")]
     public AudioClip[] sounds;
 
-    [Header("Other")]
-    [SerializeField] private Transform headObject;
-    [SerializeField] private Transform headTarget;
+    [Header("Particle Effects")]
     public ParticleSystem walkParticles;
-    public ParticleSystem bloodParticles;
+    public ParticleSystem hitParticles;
+    public ParticleSystem deathParticles;
 
     private string currentBodyAnimation;
     private string currentArmsAnimation;
@@ -82,25 +81,6 @@ public class AnimationController : MonoBehaviour
         audioSource.PlayOneShot(sounds[index]);
     }
 
-    private void LookAtTarget()
-    {
-        if (headObject == null)
-            return;
-
-        // TODO Make head look at target, should be other player's head, implement search function for this later
-        // TODO Add some sort of constraint to head angle, since head can turn past other half of body
-        else if (headTarget == null)
-        {
-            // Head rotation should be none if no target object is present
-            if (headObject.transform.localRotation != Quaternion.identity)
-                headObject.transform.localRotation = Quaternion.identity;
-
-            return;
-        }
-
-        headObject.transform.LookAt(headTarget);
-    }
-
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -115,8 +95,6 @@ public class AnimationController : MonoBehaviour
 
     private void Update()
     {
-        LookAtTarget();
-
         /*
          * If holding gun, arms are always at hold position
          */
@@ -158,14 +136,11 @@ public class AnimationController : MonoBehaviour
                 PlayWholeBodyAnimation(idle, 0f);
         }
 
-        // Handle walk particles
+        // Handle walk particles, including on death
         Vector3 walkParticleRotation = Vector3.up * (playerController.lastButtonX < 0 ? 0 : 180);
         ParticleSystem.EmissionModule walkParticlesEmission = walkParticles.emission;
 
         walkParticles.transform.localRotation = Quaternion.Euler(walkParticleRotation);
-        walkParticlesEmission.enabled = playerController.buttonX != 0 && playerController.isGrounded;
-
-        // Handle blood particles
-
+        walkParticlesEmission.enabled = playerController.buttonX != 0 && playerController.isGrounded && !playerController.isDead;
     }
 }

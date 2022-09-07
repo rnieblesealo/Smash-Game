@@ -9,6 +9,7 @@ public class PlayerSettings : ScriptableObject
     public float maxHealth;
     public float movementSpeed;
     public float jumpHeight;
+    public float respawnDelay;
 
     [Header("Jump Settings")]
     public float gravity;

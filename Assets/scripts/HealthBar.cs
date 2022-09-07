@@ -6,13 +6,22 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
     private PlayerController trackedPlayer;
+    private Graphic[] graphics; // Cache of all GUI parts of this health bar
 
     [SerializeField] private Image fill;
     [SerializeField] private float smoothTime;
+    [SerializeField] private float alphaCrossfadeTime;
+
+    private bool isTransparent = false;
 
     public void Configure(PlayerController trackedPlayer)
     {
         this.trackedPlayer = trackedPlayer;
+    }
+
+    private void Awake()
+    {
+        graphics = GetComponentsInChildren<Graphic>();
     }
 
     private void Update()
@@ -20,8 +29,24 @@ public class HealthBar : MonoBehaviour
         if (!trackedPlayer)
             return;
 
-        transform.position = Camera.main.WorldToScreenPoint(trackedPlayer.UIAnchor.position);
-
+        transform.position = Camera.main.WorldToScreenPoint(trackedPlayer.UIAnchor.position); // Health bar follows tracked player's UI anchor's world position
         fill.fillAmount = Mathf.Lerp(fill.fillAmount, trackedPlayer.currentHealth / trackedPlayer.settings.maxHealth, smoothTime * Time.deltaTime);
+
+        // Make healthbar transparent when player is dead for effect
+        if (trackedPlayer.isDead && !isTransparent)
+        {
+            for (int i = 0; i < graphics.Length; ++i)
+                graphics[i].CrossFadeAlpha(0.25f, alphaCrossfadeTime, false);
+
+            isTransparent = true;
+        }
+
+        else if (!trackedPlayer.isDead && isTransparent)
+        {
+            for (int i = 0; i < graphics.Length; ++i)
+                graphics[i].CrossFadeAlpha(1, alphaCrossfadeTime, true);
+
+            isTransparent = false;
+        }
     }
 }

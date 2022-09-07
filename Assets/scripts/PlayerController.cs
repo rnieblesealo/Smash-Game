@@ -276,8 +276,8 @@ public class PlayerController : MonoBehaviour
         anim.animator.enabled = true;
 
         // Reset gun
+        gun.Reset();
         DrawGun();
-        // TODO IMPLEMENT FUNCTION FOR GUN ITSELF
     }
 
     public void Damage(int amount)

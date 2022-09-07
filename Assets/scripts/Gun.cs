@@ -27,7 +27,7 @@ public class Gun : MonoBehaviour
     private int currentReserve;
     private int currentAmmo;
 
-    private bool hasReloaded = false;
+    private bool isReloading = false;
 
     private const float maxShootDistance = 500;
     private const float missTargetDistance = maxShootDistance / 2;
@@ -39,7 +39,7 @@ public class Gun : MonoBehaviour
 
     public void Shoot()
     {
-        if (currentAmmo == 0 || Time.time < nextFireTime)
+        if (currentAmmo == 0 || Time.time < nextFireTime || isReloading)
             return;
 
         currentAmmo--;
@@ -64,8 +64,11 @@ public class Gun : MonoBehaviour
 
     public void BeginReload()
     {
+        if (isReloading)
+            return;
+
         nextReloadTime = Time.time + reloadDuration;
-        hasReloaded = false;
+        isReloading = true;
 
         print("Beginning Reload!");
     }
@@ -81,7 +84,7 @@ public class Gun : MonoBehaviour
         currentReserve -= reloadedAmmo;
         currentAmmo += reloadedAmmo;
 
-        hasReloaded = true;
+        isReloading = false;
 
         print("Reloaded!");
     }
@@ -104,6 +107,22 @@ public class Gun : MonoBehaviour
         audioSource.PlayOneShot(draw);
     }
 
+    public void Reset()
+    {
+        /* On reset:
+         * Restore ammo
+         * Clear reloading state
+         */
+
+        // Reset ammo
+        currentAmmo = maxAmmo;
+        currentReserve = maxReserve;
+
+        // Clear reloading state
+        isReloading = false;
+        nextReloadTime = 0;
+    }
+
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
@@ -118,7 +137,7 @@ public class Gun : MonoBehaviour
 
     private void Update()
     {
-        if (Time.time > nextReloadTime && nextReloadTime != 0 && !hasReloaded)
+        if (Time.time > nextReloadTime && nextReloadTime > 0 && isReloading)
         {
             Reload();
         }

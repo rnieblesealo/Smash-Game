@@ -342,7 +342,7 @@ public class PlayerController : MonoBehaviour
             isHoldingGun = false;
 
         // Handle platform phasing
-        if (yVelocity > 0 && !ignoringGroundCollision)
+        if (yVelocity > 0)
         {
             for (int i = 0; i < LevelController.levelObjects.Count; ++i)
                 Physics.IgnoreCollision(controller, LevelController.levelObjects[i], true);
@@ -350,7 +350,7 @@ public class PlayerController : MonoBehaviour
             ignoringGroundCollision = true;
         }
 
-        else if (yVelocity <= 0 && ignoringGroundCollision)
+        else
         {
             for (int i = 0; i < LevelController.levelObjects.Count; ++i)
                 Physics.IgnoreCollision(controller, LevelController.levelObjects[i], false);

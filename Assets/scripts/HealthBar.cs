@@ -8,7 +8,8 @@ public class HealthBar : MonoBehaviour
     private PlayerController trackedPlayer;
     private Graphic[] graphics; // Cache of all GUI parts of this health bar
 
-    [SerializeField] private Image fill;
+    [SerializeField] private Image healthBarFill;
+    [SerializeField] private Text ammoText;
     [SerializeField] private float smoothTime;
     [SerializeField] private float alphaCrossfadeTime;
 
@@ -29,8 +30,12 @@ public class HealthBar : MonoBehaviour
         if (!trackedPlayer)
             return;
 
+        // Update health bar fill amount
         transform.position = Camera.main.WorldToScreenPoint(trackedPlayer.UIAnchor.position); // Health bar follows tracked player's UI anchor's world position
-        fill.fillAmount = Mathf.Lerp(fill.fillAmount, trackedPlayer.currentHealth / trackedPlayer.settings.maxHealth, smoothTime * Time.deltaTime);
+        healthBarFill.fillAmount = Mathf.Lerp(healthBarFill.fillAmount, trackedPlayer.currentHealth / trackedPlayer.settings.maxHealth, smoothTime * Time.deltaTime);
+
+        // Update ammo text
+        ammoText.text = (trackedPlayer.gun && !trackedPlayer.gun.isReloading) ? (trackedPlayer.gun.currentAmmo + "/" + trackedPlayer.gun.currentReserve) : "RELOADING";
 
         // Make healthbar transparent when player is dead for effect
         if (trackedPlayer.isDead && !isTransparent)

@@ -24,10 +24,10 @@ public class Gun : MonoBehaviour
     [SerializeField] private float bloom;
     [SerializeField] private float reloadDuration;
 
-    private int currentReserve;
-    private int currentAmmo;
+    [HideInInspector] public int currentReserve;
+    [HideInInspector] public int currentAmmo;
 
-    private bool isReloading = false;
+    public bool isReloading = false;
 
     private const float maxShootDistance = 500;
     private const float missTargetDistance = maxShootDistance / 2;
@@ -64,10 +64,11 @@ public class Gun : MonoBehaviour
 
     public void BeginReload()
     {
-        if (isReloading)
+        if (isReloading || currentAmmo == maxAmmo)
             return;
 
         nextReloadTime = Time.time + reloadDuration;
+        print(nextReloadTime);
         isReloading = true;
 
         print("Beginning Reload!");
@@ -75,9 +76,6 @@ public class Gun : MonoBehaviour
 
     private void Reload()
     {
-        if (currentAmmo == maxAmmo)
-            return;
-
         int neededAmmo = maxAmmo - currentAmmo;
         int reloadedAmmo = currentReserve >= neededAmmo ? neededAmmo : currentReserve;
 

@@ -34,8 +34,8 @@ public class HealthBar : MonoBehaviour
         transform.position = Camera.main.WorldToScreenPoint(trackedPlayer.UIAnchor.position); // Health bar follows tracked player's UI anchor's world position
         healthBarFill.fillAmount = Mathf.Lerp(healthBarFill.fillAmount, trackedPlayer.currentHealth / trackedPlayer.settings.maxHealth, smoothTime * Time.deltaTime);
 
-        // Update ammo text
-        ammoText.text = (trackedPlayer.gun && !trackedPlayer.gun.isReloading) ? (trackedPlayer.gun.currentAmmo + "/" + trackedPlayer.gun.currentReserve) : "RELOADING";
+        if (ammoText)
+            ammoText.text = (trackedPlayer.gun && !trackedPlayer.gun.isReloading) ? (trackedPlayer.gun.currentAmmo + "/" + trackedPlayer.gun.currentReserve) : "RELOADING";
 
         // Make healthbar transparent when player is dead for effect
         if (trackedPlayer.isDead && !isTransparent)

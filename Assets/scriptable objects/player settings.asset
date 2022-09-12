@@ -20,14 +20,16 @@ MonoBehaviour:
   jumpDistribution: 0.85
   maxJumpMultiplier: 1
   jumpHoldIncrement: 0.1
+  jumpPhaseDeadzone: -20
+  downwardPhaseVelocity: -15
   itemScanRadius: 1.25
-  groundScanRadius: 0.15
+  groundScanRadius: 0.12
   throwTorque: 2500
   throwForce: 17.5
   upThrowDistribution: 0.25
   whatIsGround:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 1032
   whatIsPickup:
     serializedVersion: 2
     m_Bits: 512

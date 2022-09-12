@@ -99,12 +99,12 @@ public class AnimationController : MonoBehaviour
          * If holding gun, arms are always at hold position
          */
 
-        if (playerController.isHoldingGun || playerController.isHoldingPickup)
+        if (playerController.isHoldingGun || playerController)
         {
             if (playerController.isHoldingGun)
                 PlayAnimation(BodyPart.Arms, gunHold, 0f);
 
-            else if (playerController.isHoldingPickup)
+            else if (playerController.heldPickup)
                 PlayAnimation(BodyPart.Arms, hold, 0f);
 
             if (!playerController.isGrounded)

@@ -5,6 +5,8 @@ using UnityEngine;
 public class LevelController : MonoBehaviour
 {
     public static List<Collider> levelObjects = new List<Collider>();
+    public static Vector3 safetyRespawnPoint = Vector3.zero;
+    public static int killYLevel = -25;
 
     [SerializeField] private bool autoSearch = true;
     [SerializeField] private int groundLayer = 3;

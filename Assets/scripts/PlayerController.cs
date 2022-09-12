@@ -9,7 +9,6 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Gun gun;
 
     private Renderer[] meshes; // Cache of all renderers pertaining to this player
-    private BoxCollider hitbox; // The hitbox for gameplay purposes, NOT movement purposes; this would be the CharacterController
 
     public PlayerKeybinds keybinds;
     public PlayerSettings settings;
@@ -25,11 +24,11 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public float currentHealth = 0;
 
     [HideInInspector] public bool isHoldingGun = true;
-    [HideInInspector] public bool isHoldingPickup = false; // TODO Redundant with heldPickup == null
     [HideInInspector] public bool isGrounded = true;
     [HideInInspector] public bool isDead;
 
     private const int groundLayer = 3; // TODO Relocate to static type
+    private const string unphaseableTag = "NoPhase";
 
     // Instance-Based Members
 
@@ -40,9 +39,10 @@ public class PlayerController : MonoBehaviour
 
     private bool hasJumped = false;
     private bool maxedJumpTimer = false;
-    private bool ignoringGroundCollision = false;
+    private bool isPhasing = false;
+    private bool canPhase = true;
 
-    private GameObject heldPickup;
+    [HideInInspector] public GameObject heldPickup;
 
     // Type Functions
 
@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour
     {
         isGrounded = Physics.CheckSphere(groundChecker.position, settings.groundScanRadius, settings.whatIsGround);
 
-        if (isGrounded)
+        if (isGrounded && !isPhasing)
         {
             if (yVelocity < 0)
             {
@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviour
                 currentJumpMultiplier = 0;
                 maxedJumpTimer = false;
                 hasJumped = false;
+                canPhase = !IsTouchingBaseplate(); // On landing, check if we are standing on the baseplate, from which we can't phase down
 
                 anim.PlaySound(1); // Play landing sound
             }
@@ -118,6 +119,7 @@ public class PlayerController : MonoBehaviour
                 anim.PlaySound(0); // Play jump sound
 
                 hasJumped = true; // Ensures everything within this if statement executes only once per jump
+                canPhase = true; // If we jump we can phase always
             }
         }
     }
@@ -125,6 +127,16 @@ public class PlayerController : MonoBehaviour
     private bool IsTouchingPickup()
     {
         return Physics.CheckSphere(transform.position, settings.itemScanRadius, settings.whatIsPickup);
+    }
+
+    private bool IsTouchingBaseplate()
+    {
+        // Check nearby colliders to see if we are standing on a baseplate
+        Collider[] nearbyColliders = Physics.OverlapSphere(groundChecker.position, settings.groundScanRadius);
+        for (int i = 0; i < nearbyColliders.Length; ++i)
+            if (nearbyColliders[i].gameObject.CompareTag(unphaseableTag))
+                return true;
+        return false;
     }
 
     private void EquipPickup()
@@ -143,8 +155,6 @@ public class PlayerController : MonoBehaviour
         heldPickup.transform.localRotation = Quaternion.identity;
 
         heldPickup.GetComponent<Pickup>().OnPickedUp();
-
-        isHoldingPickup = true;
         heldPickup.GetComponent<Pickup>().lastOwner = this.transform; // The last of
     }
 
@@ -166,7 +176,6 @@ public class PlayerController : MonoBehaviour
         pickupRigidbody.AddTorque(angularForce, ForceMode.Impulse);
 
         heldPickup = null;
-        isHoldingPickup = false;
 
         DrawGun();
     }
@@ -191,7 +200,7 @@ public class PlayerController : MonoBehaviour
         isHoldingGun = false;
     }
 
-    private void OnDeath()
+    private void OnDeath(bool diedOffMap = false)
     {
         /* On death:
          * 
@@ -203,31 +212,38 @@ public class PlayerController : MonoBehaviour
          * Stop any animation (disable animator altogether)
          * Make health bar transparent to reflect dead player, handle this from healthbar script itself
          * Disable walk particles, this is handled from animation controller
-         * Play effects!
+         * Play effects! Only if player did not die off-map.
+         * Move player to default respawn point if died off map
          */
 
         // Disallow updates to this player, including input
         isDead = true;
-
-        // Play effects!
-        anim.deathParticles.Play();
-        anim.PlaySound(4);
 
         // Disable non-particle renderers
         for (int i = 0; i < meshes.Length; ++i)
             if (!meshes[i].GetComponent<ParticleSystem>())
                 meshes[i].enabled = false;
 
-        // Disable hitboxes
-        hitbox.enabled = false;
+        // Disable controller, this includes hitbox
         controller.enabled = false;
 
         // Disable animator
         anim.animator.enabled = false;
 
         // Drop all pickups if any are held
-        if (isHoldingPickup)
+        if (heldPickup)
             ThrowPickup();
+
+        // Move to default respawn point
+        if (diedOffMap)
+            transform.position = LevelController.safetyRespawnPoint;
+
+        // Play effects if died on map!
+        else
+        {
+            anim.deathParticles.Play();
+            anim.PlaySound(4);
+        }
 
         // Determine respawn time
         timeToRespawn = Time.time + settings.respawnDelay;
@@ -262,14 +278,13 @@ public class PlayerController : MonoBehaviour
 
         hasJumped = false;
         maxedJumpTimer = false;
-        ignoringGroundCollision = false;
+        isPhasing = false;
 
         // Re-enable non-particle renderers
         for (int i = 0; i < meshes.Length; ++i)
             meshes[i].enabled = true;
 
-        // Re-enable hitboxes
-        hitbox.enabled = true;
+        // Re-enable hitboxes, remember that controller includes hitbox
         controller.enabled = true;
 
         // Enable animator
@@ -292,7 +307,6 @@ public class PlayerController : MonoBehaviour
         anim.PlaySound(3); // 3 is the hitmarker sound
     }
 
-    // MonoBehavior Functions
 
     private void Awake()
     {
@@ -300,7 +314,6 @@ public class PlayerController : MonoBehaviour
         anim = GetComponentInChildren<AnimationController>();
         gun = GetComponentInChildren<Gun>();
         meshes = GetComponentsInChildren<Renderer>();
-        hitbox = GetComponent<BoxCollider>();
     }
 
     private void Start()
@@ -324,10 +337,10 @@ public class PlayerController : MonoBehaviour
         Fall();
         Jump();
 
-        if (IsTouchingPickup() && !isHoldingPickup)
+        if (IsTouchingPickup() && !heldPickup)
             EquipPickup();
 
-        if (Input.GetKey(keybinds.shoot) && isHoldingPickup)
+        if (Input.GetKey(keybinds.shoot) && heldPickup)
             ThrowPickup();
 
         // Handle gun
@@ -341,28 +354,40 @@ public class PlayerController : MonoBehaviour
         else
             isHoldingGun = false;
 
-        // Handle platform phasing
-        if (yVelocity > 0)
+        // Handle phasing
+        if (canPhase)
         {
-            for (int i = 0; i < LevelController.levelObjects.Count; ++i)
-                Physics.IgnoreCollision(controller, LevelController.levelObjects[i], true);
+            // Handle platform phasing
+            if (yVelocity < settings.jumpPhaseDeadzone || yVelocity < 0 && hasJumped)
+                isPhasing = false;
 
-            ignoringGroundCollision = true;
+            // Handle fall velocity by down input
+            if (Input.GetKeyDown(keybinds.phaseDown) && isGrounded)
+            {
+                yVelocity = settings.downwardPhaseVelocity;
+                isPhasing = true;
+            }
+
+            // Handle fall velocity by jumping
+            else if (yVelocity > 0)
+                isPhasing = true;
         }
 
         else
-        {
-            for (int i = 0; i < LevelController.levelObjects.Count; ++i)
-                Physics.IgnoreCollision(controller, LevelController.levelObjects[i], false);
-
-            ignoringGroundCollision = false;
-        }
-
+            isPhasing = false;
+        
         // Handle death, clamp current health to 0 as its min value
-        if (currentHealth <= 0 && !isDead)
+        if (currentHealth <= 0 && !isDead || transform.position.y <= LevelController.killYLevel)
         {
             currentHealth = 0;
-            OnDeath();
+            OnDeath(diedOffMap: transform.position.y <= LevelController.killYLevel);
         }
+    }
+
+    private void LateUpdate()
+    {
+        // Set global ground collision state based on plastform phasing
+        for (int i = 0; i < LevelController.levelObjects.Count; ++i)
+            Physics.IgnoreCollision(controller, LevelController.levelObjects[i], isPhasing);
     }
 }

@@ -16,3 +16,4 @@ MonoBehaviour:
   jump: 105
   shoot: 110
   reload: 109
+  phaseDown: 107

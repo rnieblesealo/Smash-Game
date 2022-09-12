@@ -10,4 +10,5 @@ public class PlayerKeybinds : ScriptableObject
     public KeyCode jump;
     public KeyCode shoot;
     public KeyCode reload;
+    public KeyCode phaseDown;
 }

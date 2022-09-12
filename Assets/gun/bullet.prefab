@@ -183,7 +183,7 @@ MonoBehaviour:
   whatIsHittable:
     serializedVersion: 2
     m_Bits: 64
-  hitRadius: 1
+  hitRadius: 0.15
   killTime: 0.75
   speed: 15000
   damage: 10

@@ -34,11 +34,9 @@ public class PlayerController : MonoBehaviour
 
     private float yVelocity;
     private float xVelocity;
-    private float currentJumpMultiplier = 0;
     private float timeToRespawn = 0;
 
     private bool hasJumped = false;
-    private bool maxedJumpTimer = false;
     private bool isPhasing = false;
     private bool canPhase = true;
 
@@ -76,8 +74,6 @@ public class PlayerController : MonoBehaviour
                 yVelocity = 0;
                 xVelocity = 0;
 
-                currentJumpMultiplier = 0;
-                maxedJumpTimer = false;
                 hasJumped = false;
                 canPhase = !IsTouchingBaseplate(); // On landing, check if we are standing on the baseplate, from which we can't phase down
 
@@ -94,27 +90,12 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        /*
-         * Detect jump key if jump timer is not maxed, we must be grounded
-         * Begin counting while jump key is pressed, we will be grounded during this
-         * If jump key is released or jump multiplier is maxed, execute jump, we will not be grounded after this
-         * Reset everything once we hit ground again
-         */
-
-        if (Input.GetKey(keybinds.jump) && isGrounded && !maxedJumpTimer)
-        {
-            currentJumpMultiplier += settings.jumpHoldIncrement;
-
-            if (currentJumpMultiplier >= settings.maxJumpMultiplier)
-                maxedJumpTimer = true;
-        }
-
-        else if (Input.GetKeyUp(keybinds.jump)  || maxedJumpTimer)
+        if (Input.GetKeyDown(keybinds.jump))
         {
             if (isGrounded && !hasJumped)
             {
-                yVelocity = settings.jumpDistribution * settings.jumpHeight * currentJumpMultiplier;
-                xVelocity = (1 - settings.jumpDistribution) * currentJumpMultiplier * settings.jumpHeight;
+                yVelocity = settings.jumpDistribution * settings.jumpHeight;
+                xVelocity = (1 - settings.jumpDistribution) * settings.jumpHeight;
 
                 anim.PlaySound(0); // Play jump sound
 
@@ -274,10 +255,8 @@ public class PlayerController : MonoBehaviour
         // Reset state bools & values
         yVelocity = 0;
         xVelocity = 0;
-        currentJumpMultiplier = 0;
 
         hasJumped = false;
-        maxedJumpTimer = false;
         isPhasing = false;
 
         // Re-enable non-particle renderers

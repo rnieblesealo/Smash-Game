@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: player settings
   m_EditorClassIdentifier: 
   maxHealth: 100
-  movementSpeed: 7.5
-  jumpHeight: 30
+  movementSpeed: 8.75
+  jumpHeight: 25
   respawnDelay: 3
   gravity: -40
   jumpDistribution: 0.85
   maxJumpMultiplier: 1
-  jumpHoldIncrement: 0.1
+  jumpHoldIncrement: 500
   jumpPhaseDeadzone: -20
   downwardPhaseVelocity: -15
   itemScanRadius: 1.25

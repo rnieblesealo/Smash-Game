@@ -27,8 +27,10 @@ public class CrateSpawner : MonoBehaviour
     {
         locked = Physics.CheckSphere(transform.position, junkDetectionRadius, whatIsJunk);
 
-        // While locked (something is on top of the spawner), disallow spawning; spawn once unlocked!
+        // While locked (something is on top of the spawner), disallow spawning.
         if (!locked && Time.time >= nextSpawnTime)
             Spawn();
+        else if (locked && Time.time >= nextSpawnTime)
+            nextSpawnTime += spawnInterval;
     }
 }

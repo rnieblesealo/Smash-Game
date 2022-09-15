@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerSettings : ScriptableObject
 {
     [Header("Gameplay Settings")]
-    public float maxHealth;
+    public int maxHealth;
     public float movementSpeed;
     public float jumpHeight;
     public float respawnDelay;

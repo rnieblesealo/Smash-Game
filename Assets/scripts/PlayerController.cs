@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     [HideInInspector] public float buttonX = 0;
     [HideInInspector] public float lastButtonX = 0;
-    [HideInInspector] public float currentHealth = 0;
+    [HideInInspector] public int currentHealth = 0;
 
     [HideInInspector] public bool isHoldingGun = true;
     [HideInInspector] public bool isGrounded = true;
@@ -39,6 +39,11 @@ public class PlayerController : MonoBehaviour, IDamageable
     private bool canPhase = true;
 
     [HideInInspector] public GameObject heldPickup;
+
+    // Damageable interface
+
+    int IDamageable.maxHealth { get { return settings.maxHealth; } set { } }
+    int IDamageable.currentHealth { get { return currentHealth; } set { } }
 
     // Type Functions
 

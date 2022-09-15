@@ -10,10 +10,12 @@ public class Crate : MonoBehaviour, IDamageable
     [SerializeField] private GameObject contents;
     [SerializeField] private int maxHealth;
     [SerializeField] private float destroyDelay;
+    [SerializeField] private AudioClip landingSoundEffect;
     [SerializeField] private AudioClip hitSoundEffect;
     [SerializeField] private AudioClip destroySoundEffect;
     [SerializeField] private ParticleSystem hitParticles;
     [SerializeField] private ParticleSystem destroyParticles;
+    [SerializeField] private MeshRenderer laser;
     [SerializeField] private LayerMask whatIsGround;
     [SerializeField] private LayerMask whatIsPlayer;
 
@@ -48,6 +50,18 @@ public class Crate : MonoBehaviour, IDamageable
         Destroy(gameObject, destroyDelay);
     }
 
+    private void OnLanding()
+    {
+        // Make rb kinematic
+        rb.isKinematic = true;
+
+        // Turn off laser
+        laser.enabled = false;
+
+        // Play effect
+        audioSource.PlayOneShot(landingSoundEffect);
+    }
+
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
@@ -71,15 +85,15 @@ public class Crate : MonoBehaviour, IDamageable
     {
         // Make rb kinematic once ground is hit for efficiency and gamestate management
         if (Utils.IsInLayerMask(collision.gameObject, whatIsGround))
-            rb.isKinematic = true;
+            OnLanding();
 
         else if (Utils.IsInLayerMask(collision.gameObject, whatIsPlayer) && !rb.isKinematic)
         {
             // Kill players instantly if falling crate touches them and break the box!
-            rb.isKinematic = true;
+            OnLanding();
 
             PlayerController hitPlayer = collision.gameObject.GetComponent<PlayerController>();
-            hitPlayer.Damage(hitPlayer.settings.maxHealth); 
+            hitPlayer.Damage(hitPlayer.settings.maxHealth);
             Break();
         }
 

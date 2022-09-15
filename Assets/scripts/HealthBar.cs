@@ -32,7 +32,7 @@ public class HealthBar : MonoBehaviour
 
         // Update health bar fill amount
         transform.position = Camera.main.WorldToScreenPoint(trackedPlayer.UIAnchor.position); // Health bar follows tracked player's UI anchor's world position
-        healthBarFill.fillAmount = Mathf.Lerp(healthBarFill.fillAmount, trackedPlayer.currentHealth / trackedPlayer.settings.maxHealth, smoothTime * Time.deltaTime);
+        healthBarFill.fillAmount = Mathf.Lerp(healthBarFill.fillAmount, (float)trackedPlayer.currentHealth / trackedPlayer.settings.maxHealth, smoothTime * Time.deltaTime);
 
         if (ammoText)
             ammoText.text = (trackedPlayer.gun && !trackedPlayer.gun.isReloading) ? (trackedPlayer.gun.currentAmmo + "/" + trackedPlayer.gun.currentReserve) : "RELOADING";

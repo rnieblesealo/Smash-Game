@@ -9739,7 +9739,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 673598554533469492}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: f6c51dfd7dd3f410788cdc9ced7b308a, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -9761,9 +9761,15 @@ MonoBehaviour:
   maxHealth: 100
   destroyDelay: 3
   hitSoundEffect: {fileID: 8300000, guid: 8d543f391477343e68210797b1aa2716, type: 3}
-  hitParticles: {fileID: 1404264748}
   destroySoundEffect: {fileID: 8300000, guid: 7f6409049eb7f45e0b9375ed9bcec356, type: 3}
+  hitParticles: {fileID: 1404264748}
   destroyParticles: {fileID: 1791681272}
+  whatIsGround:
+    serializedVersion: 2
+    m_Bits: 8
+  whatIsPlayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!82 &1828745587
 AudioSource:
   m_ObjectHideFlags: 0

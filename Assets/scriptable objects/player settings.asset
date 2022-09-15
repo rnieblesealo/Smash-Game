@@ -22,6 +22,7 @@ MonoBehaviour:
   jumpHoldIncrement: 500
   jumpPhaseDeadzone: -20
   downwardPhaseVelocity: -15
+  fastFallStrength: 6.25
   itemScanRadius: 1.25
   groundScanRadius: 0.12
   throwTorque: 2500

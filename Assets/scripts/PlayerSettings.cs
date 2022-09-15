@@ -18,6 +18,7 @@ public class PlayerSettings : ScriptableObject
     public float jumpHoldIncrement;
     public float jumpPhaseDeadzone;
     public float downwardPhaseVelocity;
+    public float fastFallStrength;
 
     [Header("Collision & Range Settings")]
     public float itemScanRadius;

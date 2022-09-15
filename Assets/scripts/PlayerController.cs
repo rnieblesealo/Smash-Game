@@ -85,7 +85,8 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
 
         else
-            yVelocity += settings.gravity * Time.deltaTime;
+            // Apply extra force if player presses down while falling
+            yVelocity += settings.gravity * (Input.GetKey(keybinds.phaseDown) ? settings.fastFallStrength : 1) * Time.deltaTime;
 
         controller.Move(Time.deltaTime * yVelocity * Vector3.up); // Apply jump force
         controller.Move(Time.deltaTime * buttonX * xVelocity * Vector3.forward); // Apply additional horizontal force

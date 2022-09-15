@@ -5,14 +5,17 @@ public class Crate : MonoBehaviour, IDamageable
     private AudioSource audioSource;
     private BoxCollider boxCollider;
     private MeshRenderer meshRenderer;
+    private Rigidbody rb;
 
     [SerializeField] private GameObject contents;
     [SerializeField] private int maxHealth;
     [SerializeField] private float destroyDelay;
     [SerializeField] private AudioClip hitSoundEffect;
-    [SerializeField] private ParticleSystem hitParticles;
     [SerializeField] private AudioClip destroySoundEffect;
+    [SerializeField] private ParticleSystem hitParticles;
     [SerializeField] private ParticleSystem destroyParticles;
+    [SerializeField] private LayerMask whatIsGround;
+    [SerializeField] private LayerMask whatIsPlayer;
 
     private int currentHealth;
     private bool broken = false;
@@ -40,7 +43,7 @@ public class Crate : MonoBehaviour, IDamageable
 
         // Play effects
         audioSource.PlayOneShot(destroySoundEffect);
-       destroyParticles.Play();
+        destroyParticles.Play();
 
         Destroy(gameObject, destroyDelay);
     }
@@ -50,6 +53,7 @@ public class Crate : MonoBehaviour, IDamageable
         audioSource = GetComponent<AudioSource>();
         boxCollider = GetComponent<BoxCollider>();
         meshRenderer = GetComponent<MeshRenderer>();
+        rb = GetComponent<Rigidbody>();
     }
 
     void Start()
@@ -61,5 +65,23 @@ public class Crate : MonoBehaviour, IDamageable
     {
         if (currentHealth <= 0 && !broken)
             Break();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        // Make rb kinematic once ground is hit for efficiency and gamestate management
+        if (Utils.IsInLayerMask(collision.gameObject, whatIsGround))
+            rb.isKinematic = true;
+
+        else if (Utils.IsInLayerMask(collision.gameObject, whatIsPlayer) && !rb.isKinematic)
+        {
+            // Kill players instantly if falling crate touches them and break the box!
+            rb.isKinematic = true;
+
+            PlayerController hitPlayer = collision.gameObject.GetComponent<PlayerController>();
+            hitPlayer.Damage(hitPlayer.settings.maxHealth); 
+            Break();
+        }
+
     }
 }

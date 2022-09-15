@@ -182,7 +182,7 @@ MonoBehaviour:
   rb: {fileID: 7815811421206933973}
   whatIsHittable:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 1088
   hitRadius: 0.15
   killTime: 0.75
   speed: 15000

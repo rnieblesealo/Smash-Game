@@ -35,15 +35,15 @@ public class Bullet : MonoBehaviour
         rb.velocity = speed * Time.deltaTime * (target - origin).normalized; // We must update this every frame for correct framerate independence, send values from gun
 
         // If a player is nearby, check for their controller and damage them, destroying this bullet
-        bool playerNearby = Physics.CheckSphere(transform.position, hitRadius, whatIsHittable);
-        if (playerNearby)
+        bool targetNearby = Physics.CheckSphere(transform.position, hitRadius, whatIsHittable);
+        if (targetNearby)
         {
             Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, hitRadius, whatIsHittable);
             for (int i = 0; i < nearbyColliders.Length; ++i)
             {
                 if (nearbyColliders[i].transform != caster)
                 {
-                    nearbyColliders[i].GetComponent<PlayerController>().Damage(damage);
+                    nearbyColliders[i].GetComponent<IDamageable>().Damage(damage);
                     Destroy(gameObject);
                 }
             }

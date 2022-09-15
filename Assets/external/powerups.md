@@ -1,0 +1,22 @@
+--THROWABLES:
+	- tnt
+	- nerve gas
+	- impulse grenade
+	- poison
+	- freeze bomb
+--SPECIAL WEAPONS:
+	- flamethrower
+	- grenade launcher
+	- chemical gun
+	- freeze ray
+	- golden sniper (hold 2 fire)
+	- minigun
+	- harpoon (grab)
+- MOBILITY ITEMS:
+	- shadowcloak (shadowstep)
+	- rocket boots (flight)
+	- hermes' boots (quickwalk)
+	- thorns coat (harm collision)
+- GAMEPLAY ITEMS:
+	- medkit
+	- ammo pack

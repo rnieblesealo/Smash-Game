@@ -43,7 +43,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6288396850288624452}
-  m_Mesh: {fileID: -3311819593020789841, guid: 93d00a10482bc4a999fb08f2857bbaaf, type: 3}
+  m_Mesh: {fileID: -3311819593020789841, guid: 29773e52fdc7f42dd807a4675656e335, type: 3}
 --- !u!23 &6288396850288624448
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -109,8 +109,12 @@ MonoBehaviour:
   maxAmmo: 999999
   fireRate: 9.75
   bloom: 0.1
+  reloadDuration: 0
+  currentReserve: 0
+  currentAmmo: 0
+  isReloading: 0
   nextFireTime: 0
-  reloadStopTime: 0
+  nextReloadTime: 0
   notShootable:
     serializedVersion: 2
     m_Bits: 64

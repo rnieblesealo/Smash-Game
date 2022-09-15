@@ -22,13 +22,18 @@ public class Pickup : MonoBehaviour
     [SerializeField] private ParticleSystem explosionParticles;
     [SerializeField] private AudioClip explosionSound;
     [SerializeField] private LayerMask whatIsHittable;
-    [SerializeField] private int groundLayer = 3;
+    [SerializeField] private LayerMask whatIsGround;
     [SerializeField] private float hitRadius = 1f;
     [SerializeField] private float killTime = 1.5f;
     [SerializeField] private int damage;
 
+    private bool isVirgin = true; // Has this object been picked up at least once?
+
     public void OnPickedUp()
     {
+        if (isVirgin)
+            isVirgin = false;
+
         isPickedUp = true;
         canBePickedUp = false;
 
@@ -82,6 +87,10 @@ public class Pickup : MonoBehaviour
     private void Start()
     {
         OnDropped();
+
+        // Makes object always collectable w/o start collision
+        isVirgin = true;
+        isGrounded = true;
     }
 
     private void Update()
@@ -91,7 +100,7 @@ public class Pickup : MonoBehaviour
             return;
 
         //If a player is nearby and the item cannot be picked up, we can check for any collisions
-        if (!canBePickedUp)
+        if (!isPickedUp)
         {
             {
                 bool playerNearby = Physics.CheckSphere(transform.position, hitRadius, whatIsHittable);
@@ -121,19 +130,19 @@ public class Pickup : MonoBehaviour
     // Object is grounded if collider is touching ground
     private void OnCollisionEnter(Collision collision)
     {
-        if (isPickedUp)
+        if (isPickedUp || isGrounded || isVirgin)
             return;
 
-        if (collision.gameObject.layer == groundLayer)
+        if (Utils.IsInLayerMask(collision.gameObject, whatIsGround))
             isGrounded = true;
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        if (isPickedUp)
+        if (isPickedUp || isGrounded || isVirgin)
             return;
 
-        if (collision.gameObject.layer == groundLayer)
+        if (Utils.IsInLayerMask(collision.gameObject, whatIsGround))
             isGrounded = false;
     }
 }

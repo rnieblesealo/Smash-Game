@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDamageable
 {
     [HideInInspector] public CharacterController controller;
     [HideInInspector] public AnimationController anim;
@@ -126,7 +124,7 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < nearbyPickups.Length; ++i)
             if (nearbyPickups[i].GetComponent<Pickup>().canBePickedUp)
                 heldPickup = nearbyPickups[i].gameObject;
-        if (heldPickup == null)
+        if (!heldPickup)
             return;
 
         HolsterGun();

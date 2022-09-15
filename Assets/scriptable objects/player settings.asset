@@ -20,7 +20,7 @@ MonoBehaviour:
   jumpDistribution: 0.85
   maxJumpMultiplier: 1
   jumpHoldIncrement: 500
-  jumpPhaseDeadzone: -20
+  jumpPhaseDeadzone: -30
   downwardPhaseVelocity: -15
   fastFallStrength: 6.25
   itemScanRadius: 1.25

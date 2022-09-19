@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(BoxCollider))]
+[RequireComponent(typeof(AudioSource))]
 public class Pickup : MonoBehaviour
 {
     private Rigidbody rb;
@@ -9,13 +12,19 @@ public class Pickup : MonoBehaviour
     private MeshRenderer meshRenderer;
     private AudioSource audioSource;
 
+    [Header("Status")]
     public bool isPickedUp = false;
     public bool canBePickedUp = true;
     public bool isGrounded = false;
     public bool isDestroyed = false;
 
+    [Header("Settings")]
     public float onGroundScale;
     public float onHandsScale;
+    public float onHandsRotation;
+
+    public bool isWeapon;
+    public int maxAmmo;
 
     [HideInInspector] public Transform lastOwner;
 
@@ -28,6 +37,7 @@ public class Pickup : MonoBehaviour
     [SerializeField] private int damage;
 
     private bool isVirgin = true; // Has this object been picked up at least once?
+    private int currentAmmo;
 
     public void OnPickedUp()
     {
@@ -42,13 +52,18 @@ public class Pickup : MonoBehaviour
         gameObject.transform.localScale = Vector3.one * onHandsScale;
     }
 
-    public void OnDropped()
+    public void OnThrown()
     {
         isPickedUp = false;
-
         rb.isKinematic = false;
 
         gameObject.transform.localScale = Vector3.one * onGroundScale;
+    }
+
+    // By default, using a pickup throws it
+    public virtual void OnUsed()
+    {
+        print("Using pickup!");
     }
 
     private void OnDestroyed(PlayerController target = null)
@@ -86,7 +101,7 @@ public class Pickup : MonoBehaviour
 
     private void Start()
     {
-        OnDropped();
+        OnThrown();
 
         // Makes object always collectable w/o start collision
         isVirgin = true;

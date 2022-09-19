@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     private bool canPhase = true;
 
     [HideInInspector] public GameObject heldPickup;
+    [HideInInspector] public GameObject equippedGear;
 
     // Damageable interface
 
@@ -150,7 +151,7 @@ public class PlayerController : MonoBehaviour, IDamageable
          */
 
         heldPickup.transform.SetParent(null);
-        heldPickup.GetComponent<Pickup>().OnDropped();
+        heldPickup.GetComponent<Pickup>().OnThrown();
 
         Rigidbody pickupRigidbody = heldPickup.GetComponent<Rigidbody>();
 
@@ -163,6 +164,11 @@ public class PlayerController : MonoBehaviour, IDamageable
         heldPickup = null;
 
         DrawGun();
+    }
+
+    private void UsePickup()
+    {
+        heldPickup.GetComponent<Pickup>().OnUsed();
     }
 
     private void DrawGun()
@@ -217,7 +223,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         // Drop all pickups if any are held
         if (heldPickup)
-            ThrowPickup();
+            UsePickup();
 
         // Move to default respawn point
         if (diedOffMap)
@@ -323,17 +329,24 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (IsTouchingPickup() && !heldPickup)
             EquipPickup();
 
-        if (Input.GetKey(keybinds.shoot) && heldPickup)
-            ThrowPickup();
+        // Handle held pickup cases
+        else if (heldPickup)
+        {
+            if (Input.GetKey(keybinds.shoot))
+                UsePickup();
+            else if (Input.GetKeyDown(keybinds.drop))
+                ThrowPickup();
+        }
 
-        // Handle gun
-        if (gun)
+        // Handle gun when no pickup is present
+        else if (gun)
         {
             if (Input.GetKey(keybinds.shoot))
                 gun.Shoot();
             else if (Input.GetKeyDown(keybinds.reload))
                 gun.BeginReload();
         }
+
         else
             isHoldingGun = false;
 

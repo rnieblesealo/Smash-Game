@@ -9,6 +9,7 @@ public class PlayerKeybinds : ScriptableObject
     public string buttonAxis;
     public KeyCode jump;
     public KeyCode shoot;
+    public KeyCode drop;
     public KeyCode reload;
     public KeyCode phaseDown;
 }

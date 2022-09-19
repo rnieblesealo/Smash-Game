@@ -15,5 +15,6 @@ MonoBehaviour:
   buttonAxis: Horizontal B
   jump: 105
   shoot: 110
+  drop: 111
   reload: 109
   phaseDown: 107

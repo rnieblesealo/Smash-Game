@@ -8,11 +8,13 @@ public class CameraController : MonoBehaviour
     private Camera cam;
 
     public List<Transform> targets = new List<Transform>();
-    public Vector3 offset;
+    public Vector3 positionOffset;
+    public Vector3 rotationOffset;
 
     [SerializeField] private float smoothTime;
     [SerializeField] private float minZoom = 10f;
     [SerializeField] private float maxZoom = 40f;
+    [SerializeField] private float rotationAmount;
 
     private Vector3 velocity;
 
@@ -38,16 +40,17 @@ public class CameraController : MonoBehaviour
     private void Pan()
     {
         Vector3 centerPoint = GetCenterPoint();
-        Vector3 newPosition = centerPoint + offset;
+        Vector3 newPosition = centerPoint + positionOffset;
 
         transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, smoothTime);
     }
 
     private void Zoom()
     {
-        float newZoom = Mathf.Lerp(minZoom, maxZoom, GetGreatestDistance() / maxZoom);
+        float newZoom = Mathf.Lerp(minZoom, maxZoom, GetGreatestDistance() / maxZoom);	
 
         cam.fieldOfView = newZoom;
+        cam.transform.localRotation = Quaternion.Euler(new Vector3(rotationOffset.x + cam.transform.position.y * rotationAmount, rotationOffset.y, rotationOffset.z));
     }
 
     void GetTargets()
